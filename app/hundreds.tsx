@@ -3,25 +3,59 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, View } from '@/components/Themed';
 import { router } from 'expo-router';
 import { useColorScheme } from '@/components/useColorScheme';
+import { useLocalSearchParams } from 'expo-router';
 
-const array = new Array(30).fill(0).map((array, index) => (index + 1) * 100);
+const array = new Array(20).fill(0).map((array, index) => (index + 1) * 5);
 
-export default function Home() {
+export default function Hundreds() {
   const colorScheme = useColorScheme();
+  const { hundred } = useLocalSearchParams<{ hundred?: string }>();
+
   const themeListStyle = colorScheme === 'dark' ? styles.darkList : styles.lightList;
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={{ display: 'flex', justifyContent: 'space-evenly' }}>
         <View style={styles.headerContainer}>
-          <View>
-            <Text style={styles.headerTitle}>Words</Text>
+          <View style={styles.headerTitleContainer}>
+            <Pressable
+              onPress={() => {
+                router.back();
+              }}
+            >
+              {colorScheme === 'dark' ? (
+                <Image
+                  style={styles.headerBackIcon}
+                  source={require('../assets/images/arrow-left-white.png')}
+                />
+              ) : (
+                <Image
+                  style={styles.headerBackIcon}
+                  source={require('../assets/images/arrow-left-black.png')}
+                />
+              )}
+            </Pressable>
+            <Text style={styles.headerTitle}>{hundred}</Text>
           </View>
           <View style={styles.iconContainer}>
             {colorScheme === 'dark' ? (
-              <Image style={styles.icon} source={require('../assets/images/saved-white.png')} />
+              <>
+                <Pressable onPress={() => alert('Call Saved')}>
+                  <Image style={styles.icon} source={require('../assets/images/saved-white.png')} />
+                </Pressable>
+                <Pressable onPress={() => alert('Call Game')}>
+                  <Image style={styles.icon} source={require('../assets/images/game-white.png')} />
+                </Pressable>
+              </>
             ) : (
-              <Image style={styles.icon} source={require('../assets/images/saved-black.png')} />
+              <>
+                <Pressable onPress={() => alert('Call Saved')}>
+                  <Image style={styles.icon} source={require('../assets/images/saved-black.png')} />
+                </Pressable>
+                <Pressable onPress={() => alert('Call Game')}>
+                  <Image style={styles.icon} source={require('../assets/images/game-black.png')} />
+                </Pressable>
+              </>
             )}
           </View>
         </View>
@@ -34,12 +68,12 @@ export default function Home() {
             <View key={index} style={themeListStyle}>
               <Pressable
                 style={styles.listStyle}
-                onPress={() => router.push(`/hundreds?hundred=${value}`)}
+                onPress={() => router.push(`/words?hundred=${hundred}&word=${value}`)}
               >
                 <View>
                   <Text style={styles.listTitle}>{value}</Text>
                 </View>
-                <Pressable onPress={() => alert('Click done')}>
+                <Pressable onPress={() => alert('Click Done')}>
                   <View>
                     {colorScheme === 'dark' ? (
                       <Image
@@ -75,6 +109,16 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 20,
   },
+  headerTitleContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerBackIcon: {
+    width: 36,
+    height: 36,
+    marginRight: 12,
+  },
   headerTitle: {
     fontSize: 36,
     fontFamily: 'MontserratAlternatesBlack',
@@ -87,7 +131,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 36,
     height: 36,
-    marginLeft: 12,
+    marginLeft: 8,
   },
   scrollView: {
     marginTop: 12,
@@ -97,7 +141,8 @@ const styles = StyleSheet.create({
   },
   listStyle: {
     height: '100%',
-    padding: 26,
+    paddingLeft: 26,
+    paddingRight: 26,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -111,14 +156,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#fff',
     borderRadius: 8,
-    height: 120,
+    height: 60,
     marginBottom: 12,
   },
   lightList: {
     borderWidth: 1,
     borderColor: '#000',
     borderRadius: 8,
-    height: 120,
+    height: 60,
     marginBottom: 12,
   },
   advertizing: {

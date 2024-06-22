@@ -25,6 +25,8 @@ export default function RootLayout() {
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     MontserratAlternatesBlack: require('../assets/fonts/MontserratAlternates-BlackItalic.ttf'),
+    MontserratBold: require('../assets/fonts/Montserrat-Bold.ttf'),
+    MontserratLight: require('../assets/fonts/Montserrat-Light.ttf'),
     ...FontAwesome.font,
   });
 
@@ -53,6 +55,8 @@ function RootLayoutNav() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="hundreds" options={{ headerShown: false }} />
+        <Stack.Screen name="words" options={{ headerShown: false }} />
         {/* <Stack.Screen name="modal" options={{ presentation: 'modal' }} /> */}
       </Stack>
     </ThemeProvider>
