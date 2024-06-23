@@ -1,55 +1,99 @@
-import { StyleSheet, ScrollView, Pressable, Image } from 'react-native';
+import { StyleSheet, ScrollView, Pressable, Image, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text, View } from '@/components/Themed';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useColorScheme } from '@/components/useColorScheme';
+import { useEffect, useCallback } from 'react';
 
-const array = new Array(30).fill(0).map((array, index) => (index + 1) * 100);
+import { useInitStoreWordsList } from '@/components/useInitStoreWordsList';
+
+const cards = new Array(30).fill(0).map((value, index) => (index + 1) * 100);
 
 export default function Home() {
   const colorScheme = useColorScheme();
-  const themeListStyle = colorScheme === 'dark' ? styles.darkList : styles.lightList;
+
+  useFocusEffect(
+    useCallback(() => {
+      console.log('Focus Index Page');
+      return () => {
+        console.log('Focus Out Index Page');
+      };
+    }, []),
+  );
+
+  useEffect(() => {
+    useInitStoreWordsList();
+  }, []);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View style={{ display: 'flex', justifyContent: 'space-evenly' }}>
+      <View style={styles.container}>
+        {/* Header */}
         <View style={styles.headerContainer}>
           <View>
-            <Text style={styles.headerTitle}>Words</Text>
+            <Text
+              style={
+                colorScheme === 'dark' ? styles.headerTitleDarkTheme : styles.headerTitleLightTheme
+              }
+            >
+              Words
+            </Text>
           </View>
-          <View style={styles.iconContainer}>
+          <View style={styles.headerIconContainer}>
             {colorScheme === 'dark' ? (
-              <Image style={styles.icon} source={require('../assets/images/saved-white.png')} />
+              <Pressable onPress={() => router.push('/saved')}>
+                <Image
+                  style={styles.headerSavedIcon}
+                  source={require('../assets/images/icons/saved-white.png')}
+                />
+              </Pressable>
             ) : (
-              <Image style={styles.icon} source={require('../assets/images/saved-black.png')} />
+              <Pressable onPress={() => router.push('/saved')}>
+                <Image
+                  style={styles.headerSavedIcon}
+                  source={require('../assets/images/icons/saved-black.png')}
+                />
+              </Pressable>
             )}
           </View>
         </View>
+
+        {/* Cards */}
         <ScrollView
           style={styles.scrollView}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
         >
-          {array.map((value, index) => (
-            <View key={index} style={themeListStyle}>
+          {cards.map((value, index) => (
+            <View
+              key={index}
+              style={colorScheme === 'dark' ? styles.cardViewDarkTheme : styles.cardViewLightTheme}
+            >
               <Pressable
-                style={styles.listStyle}
+                style={styles.cardContainer}
                 onPress={() => router.push(`/hundreds?hundred=${value}`)}
               >
                 <View>
-                  <Text style={styles.listTitle}>{value}</Text>
+                  <Text
+                    style={
+                      colorScheme === 'dark'
+                        ? styles.cardTitleDarkTheme
+                        : styles.cardTitleLightTheme
+                    }
+                  >
+                    {value}
+                  </Text>
                 </View>
                 <Pressable onPress={() => alert('Click done')}>
                   <View>
                     {colorScheme === 'dark' ? (
                       <Image
-                        style={styles.icon}
-                        source={require('../assets/images/done-white.png')}
+                        style={styles.cardDoneIcon}
+                        source={require('../assets/images/icons/done-white.png')}
                       />
                     ) : (
                       <Image
-                        style={styles.icon}
-                        source={require('../assets/images/done-black.png')}
+                        style={styles.cardDoneIcon}
+                        source={require('../assets/images/icons/done-black.png')}
                       />
                     )}
                   </View>
@@ -58,8 +102,10 @@ export default function Home() {
             </View>
           ))}
         </ScrollView>
-        <View style={styles.advertizing}>
-          <Text style={styles.advertizingText}>Advertising</Text>
+
+        {/* Advertizement */}
+        <View style={styles.AdvertizementContainer}>
+          <Text style={styles.AdvertizementText}>Advertising</Text>
         </View>
       </View>
     </SafeAreaView>
@@ -67,6 +113,11 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    display: 'flex',
+    justifyContent: 'space-evenly',
+  },
+
   headerContainer: {
     display: 'flex',
     flexDirection: 'row',
@@ -75,27 +126,54 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 20,
   },
-  headerTitle: {
+
+  headerTitleDarkTheme: {
     fontSize: 36,
     fontFamily: 'MontserratAlternatesBlack',
+    color: '#fff',
   },
-  iconContainer: {
+
+  headerTitleLightTheme: {
+    fontSize: 36,
+    fontFamily: 'MontserratAlternatesBlack',
+    color: '#000',
+  },
+
+  headerIconContainer: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  icon: {
+
+  headerSavedIcon: {
     width: 36,
     height: 36,
-    marginLeft: 12,
   },
+
   scrollView: {
     marginTop: 12,
     paddingLeft: 20,
     paddingRight: 20,
     height: '100%',
   },
-  listStyle: {
+
+  cardViewDarkTheme: {
+    borderWidth: 1,
+    borderColor: '#fff',
+    borderRadius: 8,
+    height: 120,
+    marginBottom: 12,
+  },
+
+  cardViewLightTheme: {
+    borderWidth: 1,
+    borderColor: '#000',
+    borderRadius: 8,
+    height: 120,
+    marginBottom: 12,
+  },
+
+  cardContainer: {
     height: '100%',
     padding: 26,
     display: 'flex',
@@ -103,25 +181,26 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  listTitle: {
+
+  cardTitleDarkTheme: {
     fontSize: 26,
     fontFamily: 'MontserratAlternatesBlack',
+    color: '#fff',
   },
-  darkList: {
-    borderWidth: 1,
-    borderColor: '#fff',
-    borderRadius: 8,
-    height: 120,
-    marginBottom: 12,
+
+  cardTitleLightTheme: {
+    fontSize: 26,
+    fontFamily: 'MontserratAlternatesBlack',
+    color: '#000',
   },
-  lightList: {
-    borderWidth: 1,
-    borderColor: '#000',
-    borderRadius: 8,
-    height: 120,
-    marginBottom: 12,
+
+  cardDoneIcon: {
+    width: 36,
+    height: 36,
+    marginLeft: 12,
   },
-  advertizing: {
+
+  AdvertizementContainer: {
     backgroundColor: 'green',
     height: 50,
     width: '100%',
@@ -131,7 +210,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  advertizingText: {
+
+  AdvertizementText: {
     fontFamily: 'MontserratAlternatesBlack',
   },
 });

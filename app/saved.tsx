@@ -4,11 +4,12 @@ import { router } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
 import { useColorScheme } from '@/components/useColorScheme';
 
-const cards = new Array(20).fill(0).map((value, index) => (index + 1) * 5);
+import { wordList } from '@/constants/Words';
 
-export default function Hundreds() {
-  const { hundred: headerTitle } = useLocalSearchParams<{ hundred?: string }>();
+export default function Saved() {
   const colorScheme = useColorScheme();
+  const cardContainerTheme =
+    colorScheme === 'dark' ? styles.cardViewDarkTheme : styles.cardViewLightTheme;
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -38,7 +39,7 @@ export default function Hundreds() {
                 colorScheme === 'dark' ? styles.headerTitleDarkTheme : styles.headerTitleLightTheme
               }
             >
-              {headerTitle}
+              Saved
             </Text>
           </View>
           <View style={styles.headerIconContainer}>
@@ -82,14 +83,14 @@ export default function Hundreds() {
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
         >
-          {cards.map((value, index) => (
-            <View
-              key={index}
-              style={colorScheme === 'dark' ? styles.cardViewDarkTheme : styles.cardViewLightTheme}
-            >
-              <Pressable
-                style={styles.cardContainer}
-                onPress={() => router.push(`/words?hundred=${headerTitle}&word=${value}`)}
+          {wordList.slice(Number(5) - 5, Number(5) - 5 + 5).map((value, index) => (
+            <Pressable key={index} style={cardContainerTheme}>
+              <View
+                style={
+                  colorScheme === 'dark'
+                    ? styles.cardTitleContainerDarkTheme
+                    : styles.cardTitleContainerLightTheme
+                }
               >
                 <View>
                   <Text
@@ -99,26 +100,63 @@ export default function Hundreds() {
                         : styles.cardTitleLightTheme
                     }
                   >
-                    {value}
+                    {value.word}
                   </Text>
                 </View>
-                <Pressable onPress={() => alert('Click Done')}>
-                  <View>
-                    {colorScheme === 'dark' ? (
-                      <Image
-                        style={styles.cardDoneIcon}
-                        source={require('../assets/images/icons/done-white.png')}
-                      />
-                    ) : (
-                      <Image
-                        style={styles.cardDoneIcon}
-                        source={require('../assets/images/icons/done-black.png')}
-                      />
-                    )}
-                  </View>
-                </Pressable>
-              </Pressable>
-            </View>
+                <View>
+                  {colorScheme === 'dark' ? (
+                    <View style={styles.cardTitleIconContainerDarkTheme}>
+                      <Pressable onPress={() => alert('Saved')}>
+                        <Image
+                          style={styles.cardIcon}
+                          source={require('../assets/images/icons/saved-white.png')}
+                        />
+                      </Pressable>
+                      <Pressable onPress={() => alert('Fold')}>
+                        <Image
+                          style={styles.cardIcon}
+                          source={require('../assets/images/icons/arrow-down-white.png')}
+                        />
+                      </Pressable>
+                    </View>
+                  ) : (
+                    <View style={styles.cardTitleIconContainerLightTheme}>
+                      <Pressable onPress={() => alert('Saved')}>
+                        <Image
+                          style={styles.cardIcon}
+                          source={require('../assets/images/icons/saved-black.png')}
+                        />
+                      </Pressable>
+                      <Pressable onPress={() => alert('Fold')}>
+                        <Image
+                          style={styles.cardIcon}
+                          source={require('../assets/images/icons/arrow-down-black.png')}
+                        />
+                      </Pressable>
+                    </View>
+                  )}
+                </View>
+              </View>
+
+              {/* Card Contents */}
+              <View
+                style={
+                  colorScheme === 'dark'
+                    ? styles.cardContentsContainerDarkTheme
+                    : styles.cardContentsContainerLightTheme
+                }
+              >
+                <Text
+                  style={
+                    colorScheme === 'dark'
+                      ? styles.cardContentsDarkTheme
+                      : styles.cardContentsLightTheme
+                  }
+                >
+                  1. She had to “drag” the heavy suitcase up the stairs.
+                </Text>
+              </View>
+            </Pressable>
           ))}
         </ScrollView>
 
@@ -190,47 +228,91 @@ const styles = StyleSheet.create({
   },
 
   cardViewDarkTheme: {
+    backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#fff',
     borderRadius: 8,
-    height: 60,
     marginBottom: 12,
+    overflow: 'hidden',
   },
 
   cardViewLightTheme: {
+    backgroundColor: '#000',
     borderWidth: 1,
     borderColor: '#000',
     borderRadius: 8,
-    height: 60,
     marginBottom: 12,
+    overflow: 'hidden',
   },
 
-  cardContainer: {
-    height: '100%',
-    paddingLeft: 26,
-    paddingRight: 26,
+  cardTitleContainerDarkTheme: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    backgroundColor: '#000',
     alignItems: 'center',
+    padding: 12,
+  },
+
+  cardTitleContainerLightTheme: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    padding: 12,
   },
 
   cardTitleDarkTheme: {
-    fontSize: 26,
-    fontFamily: 'MontserratAlternatesBlack',
+    backgroundColor: '#000',
     color: '#fff',
+    fontSize: 24,
+    fontFamily: 'MontserratBold',
   },
 
   cardTitleLightTheme: {
-    fontSize: 26,
-    fontFamily: 'MontserratAlternatesBlack',
+    backgroundColor: '#fff',
+    color: '#000',
+    fontSize: 24,
+    fontFamily: 'MontserratBold',
+  },
+
+  cardTitleIconContainerDarkTheme: {
+    backgroundColor: '#000',
+    display: 'flex',
+    flexDirection: 'row',
+  },
+
+  cardTitleIconContainerLightTheme: {
+    backgroundColor: '#fff',
+    display: 'flex',
+    flexDirection: 'row',
+  },
+
+  cardIcon: {
+    width: 36,
+    height: 36,
+    marginLeft: 8,
+  },
+
+  cardContentsContainerDarkTheme: {
+    backgroundColor: '#fff',
+    height: 260,
+    padding: 12,
+  },
+
+  cardContentsContainerLightTheme: {
+    backgroundColor: '#000',
+    height: 260,
+    padding: 12,
+  },
+
+  cardContentsDarkTheme: {
     color: '#000',
   },
 
-  cardDoneIcon: {
-    width: 36,
-    height: 36,
-    marginLeft: 12,
+  cardContentsLightTheme: {
+    color: '#fff',
   },
 
   AdvertizementContainer: {
