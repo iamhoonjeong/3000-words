@@ -50,7 +50,7 @@ export default function Hundreds() {
                     source={require('../assets/images/icons/saved-white.png')}
                   />
                 </Pressable>
-                <Pressable onPress={() => alert('Call Game')}>
+                <Pressable onPress={() => router.push('/game')}>
                   <Image
                     style={styles.headerIcon}
                     source={require('../assets/images/icons/game-white.png')}
@@ -65,7 +65,7 @@ export default function Hundreds() {
                     source={require('../assets/images/icons/saved-black.png')}
                   />
                 </Pressable>
-                <Pressable onPress={() => alert('Call Game')}>
+                <Pressable onPress={() => router.push('/game')}>
                   <Image
                     style={styles.headerIcon}
                     source={require('../assets/images/icons/game-black.png')}

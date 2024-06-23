@@ -45,6 +45,7 @@ function RootLayoutNav() {
         <Stack.Screen name="hundreds" options={{ headerShown: false }} />
         <Stack.Screen name="words" options={{ headerShown: false }} />
         <Stack.Screen name="saved" options={{ headerShown: false }} />
+        <Stack.Screen name="game" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );
