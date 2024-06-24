@@ -155,7 +155,8 @@ const styles = StyleSheet.create({
   headerBackIcon: {
     width: 36,
     height: 36,
-    marginRight: 8,
+    marginRight: 2,
+    marginLeft: -10,
   },
 
   headerTitleDarkTheme: {

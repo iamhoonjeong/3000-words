@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
 import { useColorScheme } from '@/components/useColorScheme';
 
+import { useState } from 'react';
 import { wordList } from '@/constants/Words';
 
 export default function Hundreds() {
@@ -14,6 +15,10 @@ export default function Hundreds() {
   const colorScheme = useColorScheme();
   const cardContainerTheme =
     colorScheme === 'dark' ? styles.cardViewDarkTheme : styles.cardViewLightTheme;
+  const cardContainerFoldTheme =
+    colorScheme === 'dark' ? styles.cardViewFoldDarkTheme : styles.cardViewFoldLightTheme;
+
+  const [fold, setFold] = useState<boolean>(false);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -88,9 +93,12 @@ export default function Hundreds() {
           showsVerticalScrollIndicator={false}
         >
           {wordList
-            .slice(Number(headerTitleWord) - 5, Number(headerTitleWord) - 5 + 5)
+            .slice(
+              Number(headerTitle) - 100 + Number(headerTitleWord) - 5,
+              Number(headerTitle) - 100 + Number(headerTitleWord) - 5 + 5,
+            )
             .map((value, index) => (
-              <Pressable key={index} style={cardContainerTheme}>
+              <Pressable key={index} style={fold ? cardContainerFoldTheme : cardContainerTheme}>
                 <View
                   style={
                     colorScheme === 'dark'
@@ -115,13 +123,13 @@ export default function Hundreds() {
                         <Pressable onPress={() => alert('Saved')}>
                           <Image
                             style={styles.cardIcon}
-                            source={require('../assets/images/icons/saved-white.png')}
+                            source={require('../assets/images/icons/saved-black.png')}
                           />
                         </Pressable>
-                        <Pressable onPress={() => alert('Fold')}>
+                        <Pressable onPress={() => setFold(!fold)}>
                           <Image
-                            style={styles.cardIcon}
-                            source={require('../assets/images/icons/arrow-down-white.png')}
+                            style={fold ? styles.cardFoldIcon : styles.cardIcon}
+                            source={require('../assets/images/icons/arrow-down-black.png')}
                           />
                         </Pressable>
                       </View>
@@ -130,13 +138,13 @@ export default function Hundreds() {
                         <Pressable onPress={() => alert('Saved')}>
                           <Image
                             style={styles.cardIcon}
-                            source={require('../assets/images/icons/saved-black.png')}
+                            source={require('../assets/images/icons/saved-white.png')}
                           />
                         </Pressable>
-                        <Pressable onPress={() => alert('Fold')}>
+                        <Pressable onPress={() => setFold(!fold)}>
                           <Image
-                            style={styles.cardIcon}
-                            source={require('../assets/images/icons/arrow-down-black.png')}
+                            style={fold ? styles.cardFoldIcon : styles.cardIcon}
+                            source={require('../assets/images/icons/arrow-down-white.png')}
                           />
                         </Pressable>
                       </View>
@@ -199,7 +207,8 @@ const styles = StyleSheet.create({
   headerBackIcon: {
     width: 36,
     height: 36,
-    marginRight: 8,
+    marginRight: 2,
+    marginLeft: -10,
   },
 
   headerTitleDarkTheme: {
@@ -251,11 +260,31 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
 
+  cardViewFoldDarkTheme: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#fff',
+    borderRadius: 8,
+    marginBottom: 12,
+    overflow: 'hidden',
+    height: 60,
+  },
+
+  cardViewFoldLightTheme: {
+    backgroundColor: '#000',
+    borderWidth: 1,
+    borderColor: '#000',
+    borderRadius: 8,
+    marginBottom: 12,
+    overflow: 'hidden',
+    height: 60,
+  },
+
   cardTitleContainerDarkTheme: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
     alignItems: 'center',
     padding: 12,
   },
@@ -264,33 +293,33 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
     alignItems: 'center',
     padding: 12,
   },
 
   cardTitleDarkTheme: {
-    backgroundColor: '#000',
-    color: '#fff',
-    fontSize: 24,
-    fontFamily: 'MontserratBold',
-  },
-
-  cardTitleLightTheme: {
     backgroundColor: '#fff',
     color: '#000',
     fontSize: 24,
     fontFamily: 'MontserratBold',
   },
 
-  cardTitleIconContainerDarkTheme: {
+  cardTitleLightTheme: {
     backgroundColor: '#000',
+    color: '#fff',
+    fontSize: 24,
+    fontFamily: 'MontserratBold',
+  },
+
+  cardTitleIconContainerDarkTheme: {
+    backgroundColor: '#fff',
     display: 'flex',
     flexDirection: 'row',
   },
 
   cardTitleIconContainerLightTheme: {
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
     display: 'flex',
     flexDirection: 'row',
   },
@@ -301,24 +330,31 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
 
-  cardContentsContainerDarkTheme: {
-    backgroundColor: '#fff',
-    height: 260,
-    padding: 12,
+  cardFoldIcon: {
+    width: 36,
+    height: 36,
+    marginLeft: 8,
+    transform: [{ rotate: '180deg' }],
   },
 
-  cardContentsContainerLightTheme: {
+  cardContentsContainerDarkTheme: {
     backgroundColor: '#000',
     height: 260,
     padding: 12,
   },
 
+  cardContentsContainerLightTheme: {
+    backgroundColor: '#fff',
+    height: 260,
+    padding: 12,
+  },
+
   cardContentsDarkTheme: {
-    color: '#000',
+    color: '#fff',
   },
 
   cardContentsLightTheme: {
-    color: '#fff',
+    color: '#000',
   },
 
   AdvertizementContainer: {

@@ -14,7 +14,8 @@ import { useColorScheme } from '@/components/useColorScheme';
 
 export default function Game() {
   const colorScheme = useColorScheme();
-  const word = 'independence';
+  const word = '12345678901234567890';
+  const meaning = `끌어내다, 장애물, 떨어뜨리다, 계속되다, 늑장부리다, 끌어내다, 장애물, 떨어뜨리다, 계속되다, 늑장부리다.`;
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -55,33 +56,92 @@ export default function Game() {
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.wordIndicatorContainer}>
+          {/* Meaning */}
+          <View style={styles.wordMeaningContainer}>
             <Text
               style={
                 colorScheme === 'dark'
-                  ? styles.wordIndicatorDarkTheme
-                  : styles.wordIndicatorLightTheme
+                  ? styles.wordMeaningTitleDarkTheme
+                  : styles.wordMeaningTitleLightTheme
               }
             >
-              independence
+              Meaning
+            </Text>
+            <Text
+              style={
+                colorScheme === 'dark' ? styles.wordMeaningDarkTheme : styles.wordMeaningLightTheme
+              }
+            >
+              {meaning}
             </Text>
           </View>
 
-          <View style={styles.textInputContainer}>
+          <Text
+            style={
+              colorScheme === 'dark'
+                ? styles.wordInputTitleDarkTheme
+                : styles.wordInputTitleLightTheme
+            }
+          >
+            Word
+          </Text>
+
+          {/* Text Input */}
+          <View
+            style={
+              colorScheme === 'dark'
+                ? styles.wordInputContainerDarkTheme
+                : styles.wordInputContainerLightTheme
+            }
+          >
+            <TextInput
+              autoFocus={true}
+              placeholder={word}
+              onFocus={() => console.log('Focus on Indicator')}
+              style={
+                colorScheme === 'dark' ? styles.wordInputDarkTheme : styles.wordInputLightTheme
+              }
+            />
+          </View>
+
+          {/* Indicator */}
+          <View style={styles.textIndicatorContainer}>
             {word.split('').map((value, index) => (
-              <TextInput
-                placeholder={`${value.toUpperCase()}`}
+              <View
                 key={index}
                 style={[
-                  colorScheme === 'dark' ? styles.textInputDarkTheme : styles.textInputLightTheme,
-                  styles.textInput,
+                  colorScheme === 'dark'
+                    ? styles.wordIndicatorContainerDarkTheme
+                    : styles.wordIndicatorContainerLightTheme,
                   {
-                    width: (Dimensions.get('window').width - 40) / 5 - 4,
-                    height: (Dimensions.get('window').width - 40) / 5 - 4,
+                    width: (Dimensions.get('window').width - 40) / 5 - 3,
+                    height: (Dimensions.get('window').width - 40) / 5 - 3,
                   },
                 ]}
-              />
+              >
+                <Text
+                  style={
+                    colorScheme === 'dark'
+                      ? styles.wordIndicatorContainerCharacterDarkTheme
+                      : styles.wordIndicatorContainerCharacterLightTheme
+                  }
+                >
+                  {index + 1}
+                </Text>
+              </View>
             ))}
+          </View>
+
+          <View style={styles.hintButtonContainer}>
+            <Pressable style={styles.hintButton}>
+              <Text style={{ fontSize: 36 }}>😃</Text>
+            </Pressable>
+            <Pressable style={styles.hintButton}>
+              <Text style={{ fontSize: 36 }}>🥹</Text>
+            </Pressable>
+            <Pressable style={styles.hintButton}>
+              <Text style={{ fontSize: 36 }}>🥰</Text>
+            </Pressable>
           </View>
         </ScrollView>
 
@@ -118,7 +178,8 @@ const styles = StyleSheet.create({
   headerBackIcon: {
     width: 36,
     height: 36,
-    marginRight: 8,
+    marginRight: 2,
+    marginLeft: -10,
   },
 
   headerTitleDarkTheme: {
@@ -140,50 +201,132 @@ const styles = StyleSheet.create({
     height: '100%',
   },
 
-  wordIndicatorContainer: {
+  wordMeaningContainer: {
     display: 'flex',
-    alignItems: 'center',
+    marginTop: 24,
     marginBottom: 24,
   },
 
-  wordIndicatorDarkTheme: {
+  wordMeaningTitleDarkTheme: {
+    fontSize: 20,
+    fontFamily: 'MontserratBold',
+    color: '#fff',
+    marginBottom: 12,
+  },
+
+  wordMeaningTitleLightTheme: {
+    fontSize: 20,
+    fontFamily: 'MontserratBold',
+    color: '#000',
+    marginBottom: 12,
+  },
+
+  wordMeaningDarkTheme: {
+    fontSize: 16,
+    fontFamily: 'MontserratLight',
+    color: '#fff',
+  },
+
+  wordMeaningLightTheme: {
+    fontSize: 16,
+    fontFamily: 'MontserratLight',
+    color: '#000',
+  },
+
+  wordInputContainerDarkTheme: {
+    display: 'flex',
+    marginTop: 16,
+    marginBottom: 24,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderColor: '#fff',
+  },
+
+  wordInputContainerLightTheme: {
+    display: 'flex',
+    marginTop: 16,
+    marginBottom: 24,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderColor: '#000',
+  },
+
+  wordInputDarkTheme: {
+    width: '100%',
     fontSize: 18,
     fontFamily: 'MontserratBold',
     color: '#fff',
   },
 
-  wordIndicatorLightTheme: {
+  wordInputLightTheme: {
     fontSize: 18,
     fontFamily: 'MontserratBold',
     color: '#000',
   },
 
-  textInputContainer: {
+  wordInputTitleDarkTheme: {
+    fontSize: 20,
+    fontFamily: 'MontserratBold',
+    color: '#fff',
+  },
+
+  wordInputTitleLightTheme: {
+    fontSize: 20,
+    fontFamily: 'MontserratBold',
+    color: '#000',
+  },
+
+  textIndicatorContainer: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-start',
     flex: 1,
     flexWrap: 'wrap',
     width: '100%',
+    gap: 3,
   },
 
-  textInput: {
-    margin: 2,
-    textAlign: 'center',
-    textAlignVertical: 'center',
+  wordIndicatorContainerDarkTheme: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 1,
+    borderColor: '#fff',
+  },
+
+  wordIndicatorContainerLightTheme: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#000',
+  },
+
+  wordIndicatorContainerCharacterDarkTheme: {
+    color: '#fff',
     fontSize: 26,
     fontFamily: 'MontserratBold',
   },
 
-  textInputDarkTheme: {
-    borderColor: '#fff',
-    color: '#fff',
+  wordIndicatorContainerCharacterLightTheme: {
+    color: '#000',
+    fontSize: 26,
+    fontFamily: 'MontserratBold',
   },
 
-  textInputLightTheme: {
-    borderColor: '#000',
-    color: '#000',
+  hintButtonContainer: {
+    marginTop: 26,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+  },
+
+  hintButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 36,
+    height: 36,
   },
 
   AdvertizementContainer: {
