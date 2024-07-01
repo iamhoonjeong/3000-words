@@ -2,18 +2,47 @@ import { StyleSheet, ScrollView, Pressable, Image, Text, View } from 'react-nati
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useFocusEffect } from 'expo-router';
 import { useColorScheme } from '@/components/useColorScheme';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 
 import { useInitStoreWordsList } from '@/components/useInitStoreWordsList';
-
-const cards = new Array(30).fill(0).map((value, index) => (index + 1) * 100);
+import { useGetStoreWordList } from '@/components/useGetStoreWordList';
+import { useModifyWordList } from '@/components/useModifyWordList';
 
 export default function Home() {
   const colorScheme = useColorScheme();
 
+  const [state, setState] = useState<any>();
+  const [doneState, setDoneState] = useState<any>();
+
+  useEffect(() => {
+    const fetchInitialWords = async () => {
+      try {
+        await useInitStoreWordsList();
+        const gotWordList = await useGetStoreWordList();
+
+        if (gotWordList) {
+          setState(gotWordList.slice(0, gotWordList.length));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchInitialWords();
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
-      console.log('Focus Index Page');
+      (async () => {
+        try {
+          const gotWordList = await useGetStoreWordList();
+
+          if (gotWordList) {
+            setState(gotWordList.slice(0, gotWordList.length));
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      })();
       return () => {
         console.log('Focus Out Index Page');
       };
@@ -21,8 +50,57 @@ export default function Home() {
   );
 
   useEffect(() => {
-    useInitStoreWordsList();
-  }, []);
+    if (state) {
+      let doneStateArray: any = [];
+
+      for (let i = 0; i < state.length / 100; i++) {
+        let divideOfThirty = state.slice(i * 100, i * 100 + 100);
+        let check = divideOfThirty.filter((e: any) => e.done);
+
+        if (check.length === 100) {
+          doneStateArray.push({ done: true });
+        } else {
+          doneStateArray.push({ done: false });
+        }
+      }
+
+      setDoneState(doneStateArray);
+    }
+  }, [state]);
+
+  const onDoneTouch = async (index: number) => {
+    try {
+      const modifyWordList = await useGetStoreWordList();
+      const wordIndex = index * 100;
+
+      let changeWord;
+
+      if (!doneState[index].done) {
+        changeWord = modifyWordList.splice(wordIndex, 100).map((value: any) => {
+          return { ...value, done: true };
+        });
+      } else {
+        changeWord = modifyWordList.splice(wordIndex, 100).map((value: any) => {
+          return { ...value, done: false };
+        });
+      }
+
+      modifyWordList.splice(wordIndex, 0, ...changeWord);
+      await useModifyWordList(modifyWordList);
+    } catch (error) {
+      console.error(error);
+    }
+
+    setDoneState(
+      doneState.map((value: any, arrayIndex: any) => {
+        if (index === arrayIndex) {
+          return { ...value, done: !value.done };
+        } else {
+          return { ...value };
+        }
+      }),
+    );
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -63,44 +141,59 @@ export default function Home() {
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
         >
-          {cards.map((value, index) => (
-            <View
-              key={index}
-              style={colorScheme === 'dark' ? styles.cardViewDarkTheme : styles.cardViewLightTheme}
-            >
-              <Pressable
-                style={styles.cardContainer}
-                onPress={() => router.push(`/hundreds?hundred=${value}`)}
+          {doneState &&
+            doneState.map((value: any, index: any) => (
+              <View
+                key={index}
+                style={
+                  colorScheme !== 'dark' ? styles.cardViewDarkTheme : styles.cardViewLightTheme
+                }
               >
-                <View>
-                  <Text
-                    style={
-                      colorScheme === 'dark'
-                        ? styles.cardTitleDarkTheme
-                        : styles.cardTitleLightTheme
-                    }
-                  >
-                    {value}
-                  </Text>
-                </View>
-                <Pressable onPress={() => alert('Click done')}>
+                <Pressable
+                  style={styles.cardContainer}
+                  onPress={() => router.push(`/hundreds?hundred=${index * 100 + 100}`)}
+                >
                   <View>
-                    {colorScheme === 'dark' ? (
-                      <Image
-                        style={styles.cardDoneIcon}
-                        source={require('../assets/images/icons/done-white.png')}
-                      />
-                    ) : (
-                      <Image
-                        style={styles.cardDoneIcon}
-                        source={require('../assets/images/icons/done-black.png')}
-                      />
-                    )}
+                    <Text
+                      style={
+                        colorScheme !== 'dark'
+                          ? styles.cardTitleDarkTheme
+                          : styles.cardTitleLightTheme
+                      }
+                    >
+                      {index * 100 + 100}
+                    </Text>
                   </View>
+                  <Pressable onPress={() => onDoneTouch(index)}>
+                    <View>
+                      {colorScheme !== 'dark' ? (
+                        value.done ? (
+                          <Image
+                            style={styles.cardDoneIcon}
+                            source={require('../assets/images/icons/done-complete-white.png')}
+                          />
+                        ) : (
+                          <Image
+                            style={styles.cardDoneIcon}
+                            source={require('../assets/images/icons/done-white.png')}
+                          />
+                        )
+                      ) : value.done ? (
+                        <Image
+                          style={styles.cardDoneIcon}
+                          source={require('../assets/images/icons/done-complete-black.png')}
+                        />
+                      ) : (
+                        <Image
+                          style={styles.cardDoneIcon}
+                          source={require('../assets/images/icons/done-black.png')}
+                        />
+                      )}
+                    </View>
+                  </Pressable>
                 </Pressable>
-              </Pressable>
-            </View>
-          ))}
+              </View>
+            ))}
         </ScrollView>
 
         {/* Advertizement */}
@@ -163,6 +256,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     height: 120,
     marginBottom: 12,
+    backgroundColor: '#000',
   },
 
   cardViewLightTheme: {
@@ -171,6 +265,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     height: 120,
     marginBottom: 12,
+    backgroundColor: '#fff',
   },
 
   cardContainer: {
