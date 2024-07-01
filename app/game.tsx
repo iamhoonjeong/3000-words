@@ -146,9 +146,9 @@ export default function Game() {
         </ScrollView>
 
         {/* Advertizement */}
-        <View style={styles.AdvertizementContainer}>
+        {/* <View style={styles.AdvertizementContainer}>
           <Text style={styles.AdvertizementText}>Advertising</Text>
-        </View>
+        </View> */}
       </View>
     </SafeAreaView>
   );

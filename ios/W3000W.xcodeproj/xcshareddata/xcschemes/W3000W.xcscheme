@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "3000words.app"
-               BlueprintName = "3000words"
-               ReferencedContainer = "container:3000words.xcodeproj">
+               BuildableName = "W3000W.app"
+               BlueprintName = "W3000W"
+               ReferencedContainer = "container:W3000W.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "3000wordsTests.xctest"
-               BlueprintName = "3000wordsTests"
-               ReferencedContainer = "container:3000words.xcodeproj">
+               BuildableName = "W3000WTests.xctest"
+               BlueprintName = "W3000WTests"
+               ReferencedContainer = "container:W3000W.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "3000words.app"
-            BlueprintName = "3000words"
-            ReferencedContainer = "container:3000words.xcodeproj">
+            BuildableName = "W3000W.app"
+            BlueprintName = "W3000W"
+            ReferencedContainer = "container:W3000W.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "3000words.app"
-            BlueprintName = "3000words"
-            ReferencedContainer = "container:3000words.xcodeproj">
+            BuildableName = "W3000W.app"
+            BlueprintName = "W3000W"
+            ReferencedContainer = "container:W3000W.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

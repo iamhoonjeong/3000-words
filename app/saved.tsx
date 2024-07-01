@@ -16,6 +16,8 @@ export default function Saved() {
   const cardContainerFoldTheme =
     colorScheme === 'dark' ? styles.cardViewFoldDarkTheme : styles.cardViewFoldLightTheme;
 
+  const [state, setState] = useState<any>();
+
   const fetchSavedWordList = async () => {
     let gotStoreWordList;
     try {
@@ -35,8 +37,6 @@ export default function Saved() {
     fetchSavedWordList();
   }, []);
 
-  const [state, setState] = useState<any>();
-
   const onSavedTouch = async (word: string, index: number) => {
     try {
       const modifyWordList = await useGetStoreWordList();
@@ -47,17 +47,11 @@ export default function Saved() {
 
       modifyWordList.splice(wordIndex, 0, changeWord);
       await useModifyWordList(modifyWordList);
+
+      setState(state.filter((value: any, arrayIndex: any) => index !== arrayIndex));
     } catch (error) {
       console.error(error);
     }
-
-    setState(
-      state.map((value: any, arrayIndex: any) =>
-        arrayIndex === index
-          ? { ...value, fold: value.fold, saved: !value.saved }
-          : { ...value, fold: value.fold, saved: value.saved },
-      ),
-    );
   };
 
   return (
@@ -94,7 +88,15 @@ export default function Saved() {
           <View style={styles.headerIconContainer}>
             {colorScheme === 'dark' ? (
               <>
-                <Pressable onPress={() => router.push('/game')}>
+                <Pressable
+                  onPress={() => {
+                    if (state.length === 0) {
+                      alert(`You don't have saved words`);
+                    } else {
+                      router.push('/game');
+                    }
+                  }}
+                >
                   <Image
                     style={styles.headerIcon}
                     source={require('../assets/images/icons/game-white.png')}
@@ -103,13 +105,15 @@ export default function Saved() {
               </>
             ) : (
               <>
-                <Pressable onPress={() => router.push('/saved')}>
-                  <Image
-                    style={styles.headerIcon}
-                    source={require('../assets/images/icons/saved-black.png')}
-                  />
-                </Pressable>
-                <Pressable onPress={() => router.push('/game')}>
+                <Pressable
+                  onPress={() => {
+                    if (state.length === 0) {
+                      alert(`You don't have saved words`);
+                    } else {
+                      router.push('/game');
+                    }
+                  }}
+                >
                   <Image
                     style={styles.headerIcon}
                     source={require('../assets/images/icons/game-black.png')}
@@ -210,8 +214,8 @@ export default function Saved() {
                                 setState(
                                   state.map((value: any, arrayIndex: any) =>
                                     arrayIndex === index
-                                      ? { fold: !value.fold, saved: value.saved }
-                                      : { fold: value.fold, saved: value.saved },
+                                      ? { fold: !value.fold, saved: value.saved, word: value.word }
+                                      : { fold: value.fold, saved: value.saved, word: value.word },
                                   ),
                                 );
                               }}
@@ -251,9 +255,9 @@ export default function Saved() {
         </ScrollView>
 
         {/* Advertizement */}
-        <View style={styles.AdvertizementContainer}>
+        {/* <View style={styles.AdvertizementContainer}>
           <Text style={styles.AdvertizementText}>Advertising</Text>
-        </View>
+        </View> */}
       </View>
     </SafeAreaView>
   );
