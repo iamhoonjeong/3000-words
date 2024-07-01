@@ -4,12 +4,61 @@ import { router } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
 import { useColorScheme } from '@/components/useColorScheme';
 
-import { wordList } from '@/constants/Words';
+import { useState, useEffect } from 'react';
+
+import { useGetStoreWordList } from '@/components/useGetStoreWordList';
+import { useModifyWordList } from '@/components/useModifyWordList';
 
 export default function Saved() {
   const colorScheme = useColorScheme();
   const cardContainerTheme =
     colorScheme === 'dark' ? styles.cardViewDarkTheme : styles.cardViewLightTheme;
+  const cardContainerFoldTheme =
+    colorScheme === 'dark' ? styles.cardViewFoldDarkTheme : styles.cardViewFoldLightTheme;
+
+  const fetchSavedWordList = async () => {
+    let gotStoreWordList;
+    try {
+      gotStoreWordList = await useGetStoreWordList();
+      let filteredWordList = gotStoreWordList.filter((value: any) => value.saved);
+      let savedWordList = filteredWordList.map((value: any) => {
+        return { ...value, fold: true };
+      });
+
+      setState(savedWordList);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSavedWordList();
+  }, []);
+
+  const [state, setState] = useState<any>();
+
+  const onSavedTouch = async (word: string, index: number) => {
+    try {
+      const modifyWordList = await useGetStoreWordList();
+      const wordIndex = modifyWordList.findIndex((value: any) => value.word === word);
+
+      let changeWord = modifyWordList.splice(wordIndex, 1)[0];
+      changeWord.saved = !changeWord.saved;
+
+      modifyWordList.splice(wordIndex, 0, changeWord);
+      await useModifyWordList(modifyWordList);
+    } catch (error) {
+      console.error(error);
+    }
+
+    setState(
+      state.map((value: any, arrayIndex: any) =>
+        arrayIndex === index
+          ? { ...value, fold: value.fold, saved: !value.saved }
+          : { ...value, fold: value.fold, saved: value.saved },
+      ),
+    );
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -45,12 +94,6 @@ export default function Saved() {
           <View style={styles.headerIconContainer}>
             {colorScheme === 'dark' ? (
               <>
-                <Pressable onPress={() => router.push('/saved')}>
-                  <Image
-                    style={styles.headerIcon}
-                    source={require('../assets/images/icons/saved-white.png')}
-                  />
-                </Pressable>
                 <Pressable onPress={() => router.push('/game')}>
                   <Image
                     style={styles.headerIcon}
@@ -83,81 +126,128 @@ export default function Saved() {
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
         >
-          {wordList.slice(Number(5) - 5, Number(5) - 5 + 5).map((value, index) => (
-            <Pressable key={index} style={cardContainerTheme}>
-              <View
-                style={
-                  colorScheme === 'dark'
-                    ? styles.cardTitleContainerDarkTheme
-                    : styles.cardTitleContainerLightTheme
-                }
-              >
-                <View>
-                  <Text
-                    style={
-                      colorScheme === 'dark'
-                        ? styles.cardTitleDarkTheme
-                        : styles.cardTitleLightTheme
-                    }
+          {state &&
+            state.map((value: any, index: any) => {
+              return (
+                value.saved && (
+                  <Pressable
+                    key={index}
+                    style={value.fold ? cardContainerFoldTheme : cardContainerTheme}
                   >
-                    {value.word}
-                  </Text>
-                </View>
-                <View>
-                  {colorScheme === 'dark' ? (
-                    <View style={styles.cardTitleIconContainerDarkTheme}>
-                      <Pressable onPress={() => alert('Saved')}>
-                        <Image
-                          style={styles.cardIcon}
-                          source={require('../assets/images/icons/saved-white.png')}
-                        />
-                      </Pressable>
-                      <Pressable onPress={() => alert('Fold')}>
-                        <Image
-                          style={styles.cardIcon}
-                          source={require('../assets/images/icons/arrow-down-white.png')}
-                        />
-                      </Pressable>
+                    <View
+                      style={
+                        colorScheme === 'dark'
+                          ? styles.cardTitleContainerDarkTheme
+                          : styles.cardTitleContainerLightTheme
+                      }
+                    >
+                      <View>
+                        <Text
+                          style={
+                            colorScheme === 'dark'
+                              ? styles.cardTitleDarkTheme
+                              : styles.cardTitleLightTheme
+                          }
+                        >
+                          {value.word}
+                        </Text>
+                      </View>
+                      <View>
+                        {colorScheme === 'dark' ? (
+                          <View style={styles.cardTitleIconContainerDarkTheme}>
+                            <Pressable
+                              onPress={() => {
+                                onSavedTouch(value.word, index);
+                                fetchSavedWordList();
+                              }}
+                            >
+                              {value.saved ? (
+                                <Image
+                                  style={styles.cardIcon}
+                                  source={require('../assets/images/icons/saved-complete-black.png')}
+                                />
+                              ) : (
+                                <Image
+                                  style={styles.cardIcon}
+                                  source={require('../assets/images/icons/saved-black.png')}
+                                />
+                              )}
+                            </Pressable>
+                            <Pressable
+                              onPress={() => {
+                                setState(
+                                  state.map((value: any, arrayIndex: any) =>
+                                    arrayIndex === index
+                                      ? { fold: !value.fold, saved: value.saved, word: value.word }
+                                      : { fold: value.fold, saved: value.saved, word: value.word },
+                                  ),
+                                );
+                              }}
+                            >
+                              <Image
+                                style={value.fold ? styles.cardFoldIcon : styles.cardIcon}
+                                source={require('../assets/images/icons/arrow-down-black.png')}
+                              />
+                            </Pressable>
+                          </View>
+                        ) : (
+                          <View style={styles.cardTitleIconContainerLightTheme}>
+                            <Pressable onPress={() => onSavedTouch(value.word, index)}>
+                              {value.saved ? (
+                                <Image
+                                  style={styles.cardIcon}
+                                  source={require('../assets/images/icons/saved-complete-white.png')}
+                                />
+                              ) : (
+                                <Image
+                                  style={styles.cardIcon}
+                                  source={require('../assets/images/icons/saved-white.png')}
+                                />
+                              )}
+                            </Pressable>
+                            <Pressable
+                              onPress={() => {
+                                setState(
+                                  state.map((value: any, arrayIndex: any) =>
+                                    arrayIndex === index
+                                      ? { fold: !value.fold, saved: value.saved }
+                                      : { fold: value.fold, saved: value.saved },
+                                  ),
+                                );
+                              }}
+                            >
+                              <Image
+                                style={value.fold ? styles.cardFoldIcon : styles.cardIcon}
+                                source={require('../assets/images/icons/arrow-down-white.png')}
+                              />
+                            </Pressable>
+                          </View>
+                        )}
+                      </View>
                     </View>
-                  ) : (
-                    <View style={styles.cardTitleIconContainerLightTheme}>
-                      <Pressable onPress={() => alert('Saved')}>
-                        <Image
-                          style={styles.cardIcon}
-                          source={require('../assets/images/icons/saved-black.png')}
-                        />
-                      </Pressable>
-                      <Pressable onPress={() => alert('Fold')}>
-                        <Image
-                          style={styles.cardIcon}
-                          source={require('../assets/images/icons/arrow-down-black.png')}
-                        />
-                      </Pressable>
-                    </View>
-                  )}
-                </View>
-              </View>
 
-              {/* Card Contents */}
-              <View
-                style={
-                  colorScheme === 'dark'
-                    ? styles.cardContentsContainerDarkTheme
-                    : styles.cardContentsContainerLightTheme
-                }
-              >
-                <Text
-                  style={
-                    colorScheme === 'dark'
-                      ? styles.cardContentsDarkTheme
-                      : styles.cardContentsLightTheme
-                  }
-                >
-                  1. She had to “drag” the heavy suitcase up the stairs.
-                </Text>
-              </View>
-            </Pressable>
-          ))}
+                    {/* Card Contents */}
+                    <View
+                      style={
+                        colorScheme === 'dark'
+                          ? styles.cardContentsContainerDarkTheme
+                          : styles.cardContentsContainerLightTheme
+                      }
+                    >
+                      <Text
+                        style={
+                          colorScheme === 'dark'
+                            ? styles.cardContentsDarkTheme
+                            : styles.cardContentsLightTheme
+                        }
+                      >
+                        1. She had to “drag” the heavy suitcase up the stairs.
+                      </Text>
+                    </View>
+                  </Pressable>
+                )
+              );
+            })}
         </ScrollView>
 
         {/* Advertizement */}
@@ -246,11 +336,31 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
 
+  cardViewFoldDarkTheme: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#fff',
+    borderRadius: 8,
+    marginBottom: 12,
+    overflow: 'hidden',
+    height: 60,
+  },
+
+  cardViewFoldLightTheme: {
+    backgroundColor: '#000',
+    borderWidth: 1,
+    borderColor: '#000',
+    borderRadius: 8,
+    marginBottom: 12,
+    overflow: 'hidden',
+    height: 60,
+  },
+
   cardTitleContainerDarkTheme: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#000',
+    backgroundColor: '#fff',
     alignItems: 'center',
     padding: 12,
   },
@@ -259,33 +369,33 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
     alignItems: 'center',
     padding: 12,
   },
 
   cardTitleDarkTheme: {
-    backgroundColor: '#000',
-    color: '#fff',
-    fontSize: 24,
-    fontFamily: 'MontserratBold',
-  },
-
-  cardTitleLightTheme: {
     backgroundColor: '#fff',
     color: '#000',
     fontSize: 24,
     fontFamily: 'MontserratBold',
   },
 
-  cardTitleIconContainerDarkTheme: {
+  cardTitleLightTheme: {
     backgroundColor: '#000',
+    color: '#fff',
+    fontSize: 24,
+    fontFamily: 'MontserratBold',
+  },
+
+  cardTitleIconContainerDarkTheme: {
+    backgroundColor: '#fff',
     display: 'flex',
     flexDirection: 'row',
   },
 
   cardTitleIconContainerLightTheme: {
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
     display: 'flex',
     flexDirection: 'row',
   },
@@ -296,24 +406,31 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
 
-  cardContentsContainerDarkTheme: {
-    backgroundColor: '#fff',
-    height: 260,
-    padding: 12,
+  cardFoldIcon: {
+    width: 36,
+    height: 36,
+    marginLeft: 8,
+    transform: [{ rotate: '180deg' }],
   },
 
-  cardContentsContainerLightTheme: {
+  cardContentsContainerDarkTheme: {
     backgroundColor: '#000',
     height: 260,
     padding: 12,
   },
 
+  cardContentsContainerLightTheme: {
+    backgroundColor: '#fff',
+    height: 260,
+    padding: 12,
+  },
+
   cardContentsDarkTheme: {
-    color: '#000',
+    color: '#fff',
   },
 
   cardContentsLightTheme: {
-    color: '#fff',
+    color: '#000',
   },
 
   AdvertizementContainer: {

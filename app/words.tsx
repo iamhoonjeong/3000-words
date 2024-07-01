@@ -1,11 +1,13 @@
 import { StyleSheet, ScrollView, Pressable, Image, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
 import { useColorScheme } from '@/components/useColorScheme';
 
-import { useState } from 'react';
-import { wordList } from '@/constants/Words';
+import { useState, useCallback } from 'react';
+
+import { useGetStoreWordList } from '@/components/useGetStoreWordList';
+import { useModifyWordList } from '@/components/useModifyWordList';
 
 export default function Hundreds() {
   const { hundred: headerTitle, word: headerTitleWord } = useLocalSearchParams<{
@@ -18,7 +20,51 @@ export default function Hundreds() {
   const cardContainerFoldTheme =
     colorScheme === 'dark' ? styles.cardViewFoldDarkTheme : styles.cardViewFoldLightTheme;
 
-  const [fold, setFold] = useState<boolean>(false);
+  const [state, setState] = useState<any>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        try {
+          const startIndex = Number(headerTitle) - 100 + Number(headerTitleWord) - 5;
+          const modifyWordList = await useGetStoreWordList();
+          const selectedWords = modifyWordList.slice(startIndex, startIndex + 5);
+
+          setState(
+            selectedWords.map((value: any) => {
+              return { ...value, fold: false };
+            }),
+          );
+        } catch (error) {
+          console.error(error);
+        }
+      })();
+      return () => {
+        console.log('Focus Out Index Page');
+      };
+    }, []),
+  );
+
+  const onSavedTouch = async (word: string, index: number) => {
+    try {
+      const modifyWordList = await useGetStoreWordList();
+      const wordIndex = modifyWordList.findIndex((value: any) => value.word === word);
+
+      let changeWord = modifyWordList.splice(wordIndex, 1)[0];
+      changeWord.saved = !changeWord.saved;
+
+      modifyWordList.splice(wordIndex, 0, changeWord);
+      await useModifyWordList(modifyWordList);
+    } catch (error) {
+      console.error(error);
+    }
+
+    setState(
+      state.map((value: any, arrayIndex: any) =>
+        arrayIndex === index ? { ...value, saved: !value.saved } : { ...value },
+      ),
+    );
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -92,13 +138,12 @@ export default function Hundreds() {
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
         >
-          {wordList
-            .slice(
-              Number(headerTitle) - 100 + Number(headerTitleWord) - 5,
-              Number(headerTitle) - 100 + Number(headerTitleWord) - 5 + 5,
-            )
-            .map((value, index) => (
-              <Pressable key={index} style={fold ? cardContainerFoldTheme : cardContainerTheme}>
+          {state &&
+            state.map((value: any, index: any) => (
+              <Pressable
+                key={index}
+                style={value.fold ? cardContainerFoldTheme : cardContainerTheme}
+              >
                 <View
                   style={
                     colorScheme === 'dark'
@@ -120,30 +165,64 @@ export default function Hundreds() {
                   <View>
                     {colorScheme === 'dark' ? (
                       <View style={styles.cardTitleIconContainerDarkTheme}>
-                        <Pressable onPress={() => alert('Saved')}>
-                          <Image
-                            style={styles.cardIcon}
-                            source={require('../assets/images/icons/saved-black.png')}
-                          />
+                        <Pressable onPress={() => onSavedTouch(value.word, index)}>
+                          {value.saved ? (
+                            <Image
+                              style={styles.cardIcon}
+                              source={require('../assets/images/icons/saved-complete-black.png')}
+                            />
+                          ) : (
+                            <Image
+                              style={styles.cardIcon}
+                              source={require('../assets/images/icons/saved-black.png')}
+                            />
+                          )}
                         </Pressable>
-                        <Pressable onPress={() => setFold(!fold)}>
+                        <Pressable
+                          onPress={() => {
+                            setState(
+                              state.map((value: any, arrayIndex: any) =>
+                                arrayIndex === index
+                                  ? { ...value, fold: !value.fold }
+                                  : { ...value },
+                              ),
+                            );
+                          }}
+                        >
                           <Image
-                            style={fold ? styles.cardFoldIcon : styles.cardIcon}
+                            style={value.fold ? styles.cardFoldIcon : styles.cardIcon}
                             source={require('../assets/images/icons/arrow-down-black.png')}
                           />
                         </Pressable>
                       </View>
                     ) : (
                       <View style={styles.cardTitleIconContainerLightTheme}>
-                        <Pressable onPress={() => alert('Saved')}>
-                          <Image
-                            style={styles.cardIcon}
-                            source={require('../assets/images/icons/saved-white.png')}
-                          />
+                        <Pressable onPress={() => onSavedTouch(value.word, index)}>
+                          {value.saved ? (
+                            <Image
+                              style={styles.cardIcon}
+                              source={require('../assets/images/icons/saved-complete-white.png')}
+                            />
+                          ) : (
+                            <Image
+                              style={styles.cardIcon}
+                              source={require('../assets/images/icons/saved-white.png')}
+                            />
+                          )}
                         </Pressable>
-                        <Pressable onPress={() => setFold(!fold)}>
+                        <Pressable
+                          onPress={() => {
+                            setState(
+                              state.map((value: any, arrayIndex: any) =>
+                                arrayIndex === index
+                                  ? { ...value, fold: !value.fold }
+                                  : { ...value },
+                              ),
+                            );
+                          }}
+                        >
                           <Image
-                            style={fold ? styles.cardFoldIcon : styles.cardIcon}
+                            style={value.fold ? styles.cardFoldIcon : styles.cardIcon}
                             source={require('../assets/images/icons/arrow-down-white.png')}
                           />
                         </Pressable>
