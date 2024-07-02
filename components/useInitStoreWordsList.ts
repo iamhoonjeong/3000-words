@@ -5,9 +5,9 @@ export async function useInitStoreWordsList() {
   let storeWordList;
   storeWordList = await AsyncStorage.getItem('storeWordList');
 
-  if (storeWordList === null) {
-    storeWordList = await AsyncStorage.setItem('storeWordList', JSON.stringify(wordList));
+  if (storeWordList !== null) {
     try {
+      storeWordList = await AsyncStorage.setItem('storeWordList', JSON.stringify(wordList));
     } catch (error) {
       alert(error);
     }

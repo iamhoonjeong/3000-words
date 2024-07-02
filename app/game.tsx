@@ -1,21 +1,69 @@
-import {
-  StyleSheet,
-  ScrollView,
-  Pressable,
-  Image,
-  Text,
-  View,
-  TextInput,
-  Dimensions,
-} from 'react-native';
+import { StyleSheet, ScrollView, Pressable, Image, Text, View, TextInput, Dimensions, TextInputSubmitEditingEventData, NativeEventEmitter } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useColorScheme } from '@/components/useColorScheme';
+import { useCallback, useEffect, useState, useRef, useLayoutEffect } from 'react';
+
+import { useGetStoreWordList } from '@/components/useGetStoreWordList';
 
 export default function Game() {
+  const { hundred: headerTitle, word: headerTitleWord } = useLocalSearchParams<{
+    hundred?: string;
+    word?: string;
+  }>();
+  const [state, setState] = useState<any>(null);
+  const [indicator, setIndicator] = useState<any>(null);
+
   const colorScheme = useColorScheme();
-  const word = '12345678901234567890';
-  const meaning = `끌어내다, 장애물, 떨어뜨리다, 계속되다, 늑장부리다, 끌어내다, 장애물, 떨어뜨리다, 계속되다, 늑장부리다.`;
+  const inputRef = useRef<any>(null);
+  const delay = 500;
+
+  useEffect(() => {
+    if (state) {
+      if (inputRef.current) {
+        setTimeout(() => {
+          inputRef.current.focus();
+        }, delay);
+      }
+    }
+  }, [state]);
+
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        try {
+          let startIndex;
+          let modifyWordList;
+          let selectedWords;
+
+          if (headerTitle && headerTitleWord) {
+            startIndex = Number(headerTitle) - 100 + Number(headerTitleWord) - 5;
+            modifyWordList = await useGetStoreWordList();
+            selectedWords = modifyWordList.slice(startIndex, startIndex + 5);
+          } else if (headerTitle && !headerTitleWord) {
+            startIndex = Number(headerTitle);
+            modifyWordList = await useGetStoreWordList();
+            selectedWords = modifyWordList.slice(startIndex - 100, startIndex);
+          } else if (!headerTitle && !headerTitleWord) {
+            console.log('saved');
+            modifyWordList = await useGetStoreWordList();
+            selectedWords = modifyWordList.filter((value: any) => value.saved);
+          }
+
+          setState(
+            selectedWords.map((value: any) => {
+              return { ...value };
+            }),
+          );
+        } catch (error) {
+          console.error(error);
+        }
+      })();
+      return () => {
+        console.log('Focus Out Index Page');
+      };
+    }, []),
+  );
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -29,121 +77,91 @@ export default function Game() {
               }}
             >
               {colorScheme === 'dark' ? (
-                <Image
-                  style={styles.headerBackIcon}
-                  source={require('../assets/images/icons/arrow-left-white.png')}
-                />
+                <Image style={styles.headerBackIcon} source={require('../assets/images/icons/arrow-left-white.png')} />
               ) : (
-                <Image
-                  style={styles.headerBackIcon}
-                  source={require('../assets/images/icons/arrow-left-black.png')}
-                />
+                <Image style={styles.headerBackIcon} source={require('../assets/images/icons/arrow-left-black.png')} />
               )}
             </Pressable>
-            <Text
-              style={
-                colorScheme === 'dark' ? styles.headerTitleDarkTheme : styles.headerTitleLightTheme
-              }
-            >
-              Game
-            </Text>
+            <Text style={colorScheme === 'dark' ? styles.headerTitleDarkTheme : styles.headerTitleLightTheme}>Game</Text>
           </View>
         </View>
 
         {/* Game Contents */}
-        <ScrollView
-          style={styles.scrollView}
-          showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Meaning */}
-          <View style={styles.wordMeaningContainer}>
-            <Text
-              style={
-                colorScheme === 'dark'
-                  ? styles.wordMeaningTitleDarkTheme
-                  : styles.wordMeaningTitleLightTheme
-              }
-            >
-              Meaning
-            </Text>
-            <Text
-              style={
-                colorScheme === 'dark' ? styles.wordMeaningDarkTheme : styles.wordMeaningLightTheme
-              }
-            >
-              {meaning}
-            </Text>
-          </View>
+        {state ? (
+          <ScrollView style={styles.scrollView} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
+            {/* Left */}
+            <View style={styles.wordMeaningContainer}>
+              <Text style={colorScheme === 'dark' ? styles.wordMeaningTitleDarkTheme : styles.wordMeaningTitleLightTheme}>Left</Text>
+              <Text style={colorScheme === 'dark' ? styles.wordMeaningDarkTheme : styles.wordMeaningLightTheme}>{state.length}</Text>
+            </View>
 
-          <Text
-            style={
-              colorScheme === 'dark'
-                ? styles.wordInputTitleDarkTheme
-                : styles.wordInputTitleLightTheme
-            }
-          >
-            Word
-          </Text>
+            {/* Meaning */}
+            <View style={styles.wordMeaningContainer}>
+              <Text style={colorScheme === 'dark' ? styles.wordMeaningTitleDarkTheme : styles.wordMeaningTitleLightTheme}>Meaning</Text>
+              <Text style={colorScheme === 'dark' ? styles.wordMeaningDarkTheme : styles.wordMeaningLightTheme}>{state[0].meaning_kor}</Text>
+            </View>
 
-          {/* Text Input */}
-          <View
-            style={
-              colorScheme === 'dark'
-                ? styles.wordInputContainerDarkTheme
-                : styles.wordInputContainerLightTheme
-            }
-          >
-            <TextInput
-              autoFocus={true}
-              placeholder={word}
-              onFocus={() => console.log('Focus on Indicator')}
-              style={
-                colorScheme === 'dark' ? styles.wordInputDarkTheme : styles.wordInputLightTheme
-              }
-            />
-          </View>
+            <Text style={colorScheme === 'dark' ? styles.wordInputTitleDarkTheme : styles.wordInputTitleLightTheme}>Word</Text>
 
-          {/* Indicator */}
-          <View style={styles.textIndicatorContainer}>
-            {word.split('').map((value, index) => (
-              <View
-                key={index}
-                style={[
-                  colorScheme === 'dark'
-                    ? styles.wordIndicatorContainerDarkTheme
-                    : styles.wordIndicatorContainerLightTheme,
-                  {
-                    width: (Dimensions.get('window').width - 40) / 5 - 3,
-                    height: (Dimensions.get('window').width - 40) / 5 - 3,
-                  },
-                ]}
-              >
-                <Text
-                  style={
-                    colorScheme === 'dark'
-                      ? styles.wordIndicatorContainerCharacterDarkTheme
-                      : styles.wordIndicatorContainerCharacterLightTheme
+            {/* Text Input */}
+            <View style={colorScheme === 'dark' ? styles.wordInputContainerDarkTheme : styles.wordInputContainerLightTheme}>
+              <TextInput
+                ref={inputRef}
+                maxLength={state[0].word.split('').length}
+                autoFocus={false}
+                autoCapitalize="none"
+                placeholder={`. . . ${state[0].word.split('').length} Character & ${state[0].word}`}
+                style={colorScheme === 'dark' ? styles.wordInputDarkTheme : styles.wordInputLightTheme}
+                onSubmitEditing={(e: any) => {
+                  if (state.length === 1) {
+                    setTimeout(() => {
+                      router.back();
+                    }, delay);
+                  } else {
+                    if (e.nativeEvent.text.toLowerCase() === state[0].word) {
+                      setState(state.slice(1, state.length));
+                    }
+                    e.target.clear();
                   }
-                >
-                  {index + 1}
-                </Text>
-              </View>
-            ))}
-          </View>
+                }}
+              />
+            </View>
 
-          <View style={styles.hintButtonContainer}>
-            <Pressable style={styles.hintButton}>
-              <Text style={{ fontSize: 36 }}>😃</Text>
-            </Pressable>
-            <Pressable style={styles.hintButton}>
-              <Text style={{ fontSize: 36 }}>🥹</Text>
-            </Pressable>
-            <Pressable style={styles.hintButton}>
-              <Text style={{ fontSize: 36 }}>🥰</Text>
-            </Pressable>
-          </View>
-        </ScrollView>
+            {/* Indicator */}
+            <View style={styles.textIndicatorContainer}>
+              {state[0].word.split('').map((value: any, index: any) => (
+                <View
+                  key={index}
+                  style={[
+                    colorScheme === 'dark' ? styles.wordIndicatorContainerDarkTheme : styles.wordIndicatorContainerLightTheme,
+                    {
+                      width: (Dimensions.get('window').width - 40) / 5 - 3,
+                      height: (Dimensions.get('window').width - 40) / 5 - 3,
+                    },
+                  ]}
+                >
+                  <Text style={colorScheme === 'dark' ? styles.wordIndicatorContainerCharacterDarkTheme : styles.wordIndicatorContainerCharacterLightTheme}>
+                    {index + 1}
+                  </Text>
+                </View>
+              ))}
+            </View>
+
+            <View style={styles.hintButtonContainer}>
+              <Pressable style={styles.hintButton}>
+                <Text style={{ fontSize: 36 }}>😃</Text>
+              </Pressable>
+              <Pressable style={styles.hintButton}>
+                <Text style={{ fontSize: 36 }}>🥹</Text>
+              </Pressable>
+              <Pressable style={styles.hintButton}>
+                <Text style={{ fontSize: 36 }}>🥰</Text>
+              </Pressable>
+            </View>
+          </ScrollView>
+        ) : (
+          <></>
+        )}
 
         {/* Advertizement */}
         {/* <View style={styles.AdvertizementContainer}>
@@ -203,7 +221,6 @@ const styles = StyleSheet.create({
 
   wordMeaningContainer: {
     display: 'flex',
-    marginTop: 24,
     marginBottom: 24,
   },
 

@@ -1,10 +1,9 @@
 import { StyleSheet, ScrollView, Pressable, Image, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, useFocusEffect } from 'expo-router';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useColorScheme } from '@/components/useColorScheme';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import { useGetStoreWordList } from '@/components/useGetStoreWordList';
 import { useModifyWordList } from '@/components/useModifyWordList';
@@ -15,10 +14,8 @@ export default function Hundreds() {
     word?: string;
   }>();
   const colorScheme = useColorScheme();
-  const cardContainerTheme =
-    colorScheme === 'dark' ? styles.cardViewDarkTheme : styles.cardViewLightTheme;
-  const cardContainerFoldTheme =
-    colorScheme === 'dark' ? styles.cardViewFoldDarkTheme : styles.cardViewFoldLightTheme;
+  const cardContainerTheme = colorScheme === 'dark' ? styles.cardViewDarkTheme : styles.cardViewLightTheme;
+  const cardContainerFoldTheme = colorScheme === 'dark' ? styles.cardViewFoldDarkTheme : styles.cardViewFoldLightTheme;
 
   const [state, setState] = useState<any>(null);
 
@@ -59,11 +56,7 @@ export default function Hundreds() {
       console.error(error);
     }
 
-    setState(
-      state.map((value: any, arrayIndex: any) =>
-        arrayIndex === index ? { ...value, saved: !value.saved } : { ...value },
-      ),
-    );
+    setState(state.map((value: any, arrayIndex: any) => (arrayIndex === index ? { ...value, saved: !value.saved } : { ...value })));
   };
 
   return (
@@ -78,22 +71,12 @@ export default function Hundreds() {
               }}
             >
               {colorScheme === 'dark' ? (
-                <Image
-                  style={styles.headerBackIcon}
-                  source={require('../assets/images/icons/arrow-left-white.png')}
-                />
+                <Image style={styles.headerBackIcon} source={require('../assets/images/icons/arrow-left-white.png')} />
               ) : (
-                <Image
-                  style={styles.headerBackIcon}
-                  source={require('../assets/images/icons/arrow-left-black.png')}
-                />
+                <Image style={styles.headerBackIcon} source={require('../assets/images/icons/arrow-left-black.png')} />
               )}
             </Pressable>
-            <Text
-              style={
-                colorScheme === 'dark' ? styles.headerTitleDarkTheme : styles.headerTitleLightTheme
-              }
-            >
+            <Text style={colorScheme === 'dark' ? styles.headerTitleDarkTheme : styles.headerTitleLightTheme}>
               {headerTitle} - {headerTitleWord}
             </Text>
           </View>
@@ -101,31 +84,19 @@ export default function Hundreds() {
             {colorScheme === 'dark' ? (
               <>
                 <Pressable onPress={() => router.push('/saved')}>
-                  <Image
-                    style={styles.headerIcon}
-                    source={require('../assets/images/icons/saved-white.png')}
-                  />
+                  <Image style={styles.headerIcon} source={require('../assets/images/icons/saved-white.png')} />
                 </Pressable>
-                <Pressable onPress={() => router.push('/game')}>
-                  <Image
-                    style={styles.headerIcon}
-                    source={require('../assets/images/icons/game-white.png')}
-                  />
+                <Pressable onPress={() => router.push(`/game?hundred=${headerTitle}&word=${headerTitleWord}`)}>
+                  <Image style={styles.headerIcon} source={require('../assets/images/icons/game-white.png')} />
                 </Pressable>
               </>
             ) : (
               <>
                 <Pressable onPress={() => router.push('/saved')}>
-                  <Image
-                    style={styles.headerIcon}
-                    source={require('../assets/images/icons/saved-black.png')}
-                  />
+                  <Image style={styles.headerIcon} source={require('../assets/images/icons/saved-black.png')} />
                 </Pressable>
-                <Pressable onPress={() => router.push('/game')}>
-                  <Image
-                    style={styles.headerIcon}
-                    source={require('../assets/images/icons/game-black.png')}
-                  />
+                <Pressable onPress={() => router.push('/game?hundred=${headerTitle}&word=${headerTitleWord}')}>
+                  <Image style={styles.headerIcon} source={require('../assets/images/icons/game-black.png')} />
                 </Pressable>
               </>
             )}
@@ -133,98 +104,47 @@ export default function Hundreds() {
         </View>
 
         {/* Cards */}
-        <ScrollView
-          style={styles.scrollView}
-          showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={false}
-        >
+        <ScrollView style={styles.scrollView} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
           {state &&
             state.map((value: any, index: any) => (
-              <Pressable
-                key={index}
-                style={value.fold ? cardContainerFoldTheme : cardContainerTheme}
-              >
-                <View
-                  style={
-                    colorScheme === 'dark'
-                      ? styles.cardTitleContainerDarkTheme
-                      : styles.cardTitleContainerLightTheme
-                  }
-                >
+              <Pressable key={index} style={value.fold ? cardContainerFoldTheme : cardContainerTheme}>
+                <View style={colorScheme === 'dark' ? styles.cardTitleContainerDarkTheme : styles.cardTitleContainerLightTheme}>
                   <View>
-                    <Text
-                      style={
-                        colorScheme === 'dark'
-                          ? styles.cardTitleDarkTheme
-                          : styles.cardTitleLightTheme
-                      }
-                    >
-                      {value.word}
-                    </Text>
+                    <Text style={colorScheme === 'dark' ? styles.cardTitleDarkTheme : styles.cardTitleLightTheme}>{value.word}</Text>
                   </View>
                   <View>
                     {colorScheme === 'dark' ? (
                       <View style={styles.cardTitleIconContainerDarkTheme}>
                         <Pressable onPress={() => onSavedTouch(value.word, index)}>
                           {value.saved ? (
-                            <Image
-                              style={styles.cardIcon}
-                              source={require('../assets/images/icons/saved-complete-black.png')}
-                            />
+                            <Image style={styles.cardIcon} source={require('../assets/images/icons/saved-complete-black.png')} />
                           ) : (
-                            <Image
-                              style={styles.cardIcon}
-                              source={require('../assets/images/icons/saved-black.png')}
-                            />
+                            <Image style={styles.cardIcon} source={require('../assets/images/icons/saved-black.png')} />
                           )}
                         </Pressable>
                         <Pressable
                           onPress={() => {
-                            setState(
-                              state.map((value: any, arrayIndex: any) =>
-                                arrayIndex === index
-                                  ? { ...value, fold: !value.fold }
-                                  : { ...value },
-                              ),
-                            );
+                            setState(state.map((value: any, arrayIndex: any) => (arrayIndex === index ? { ...value, fold: !value.fold } : { ...value })));
                           }}
                         >
-                          <Image
-                            style={value.fold ? styles.cardFoldIcon : styles.cardIcon}
-                            source={require('../assets/images/icons/arrow-down-black.png')}
-                          />
+                          <Image style={value.fold ? styles.cardFoldIcon : styles.cardIcon} source={require('../assets/images/icons/arrow-down-black.png')} />
                         </Pressable>
                       </View>
                     ) : (
                       <View style={styles.cardTitleIconContainerLightTheme}>
                         <Pressable onPress={() => onSavedTouch(value.word, index)}>
                           {value.saved ? (
-                            <Image
-                              style={styles.cardIcon}
-                              source={require('../assets/images/icons/saved-complete-white.png')}
-                            />
+                            <Image style={styles.cardIcon} source={require('../assets/images/icons/saved-complete-white.png')} />
                           ) : (
-                            <Image
-                              style={styles.cardIcon}
-                              source={require('../assets/images/icons/saved-white.png')}
-                            />
+                            <Image style={styles.cardIcon} source={require('../assets/images/icons/saved-white.png')} />
                           )}
                         </Pressable>
                         <Pressable
                           onPress={() => {
-                            setState(
-                              state.map((value: any, arrayIndex: any) =>
-                                arrayIndex === index
-                                  ? { ...value, fold: !value.fold }
-                                  : { ...value },
-                              ),
-                            );
+                            setState(state.map((value: any, arrayIndex: any) => (arrayIndex === index ? { ...value, fold: !value.fold } : { ...value })));
                           }}
                         >
-                          <Image
-                            style={value.fold ? styles.cardFoldIcon : styles.cardIcon}
-                            source={require('../assets/images/icons/arrow-down-white.png')}
-                          />
+                          <Image style={value.fold ? styles.cardFoldIcon : styles.cardIcon} source={require('../assets/images/icons/arrow-down-white.png')} />
                         </Pressable>
                       </View>
                     )}
@@ -232,22 +152,14 @@ export default function Hundreds() {
                 </View>
 
                 {/* Card Contents */}
-                <View
-                  style={
-                    colorScheme === 'dark'
-                      ? styles.cardContentsContainerDarkTheme
-                      : styles.cardContentsContainerLightTheme
-                  }
-                >
-                  <Text
-                    style={
-                      colorScheme === 'dark'
-                        ? styles.cardContentsDarkTheme
-                        : styles.cardContentsLightTheme
-                    }
-                  >
-                    1. She had to “drag” the heavy suitcase up the stairs.
-                  </Text>
+                <View style={colorScheme === 'dark' ? styles.cardContentsContainerDarkTheme : styles.cardContentsContainerLightTheme}>
+                  <Text style={colorScheme === 'dark' ? styles.cardContentsTitleDarkTheme : styles.cardContentsTitleLightTheme}>Korean</Text>
+                  <Text style={colorScheme === 'dark' ? styles.cardContentsDarkTheme : styles.cardContentsLightTheme}>{value.meaning_kor}</Text>
+
+                  <View style={colorScheme === 'dark' ? styles.dividerDarkTheme : styles.dividerLightTheme}></View>
+
+                  <Text style={colorScheme === 'dark' ? styles.cardContentsTitleDarkTheme : styles.cardContentsTitleLightTheme}>Sentence</Text>
+                  <Text style={colorScheme === 'dark' ? styles.cardContentsDarkTheme : styles.cardContentsLightTheme}>{value.sentence}</Text>
                 </View>
               </Pressable>
             ))}
@@ -418,22 +330,58 @@ const styles = StyleSheet.create({
 
   cardContentsContainerDarkTheme: {
     backgroundColor: '#000',
-    height: 260,
+    // height: 260,
     padding: 12,
   },
 
   cardContentsContainerLightTheme: {
     backgroundColor: '#fff',
-    height: 260,
+    // height: 260,
     padding: 12,
+  },
+
+  cardContentsTitleDarkTheme: {
+    color: '#fff',
+    fontSize: 20,
+    fontFamily: 'MontserratBold',
+    marginBottom: 12,
+  },
+
+  cardContentsTitleLightTheme: {
+    color: '#000',
+    fontSize: 20,
+    fontFamily: 'MontserratBold',
+    marginBottom: 12,
   },
 
   cardContentsDarkTheme: {
     color: '#fff',
+    fontSize: 18,
+    lineHeight: 26,
+    fontFamily: 'MontserratMedium',
   },
 
   cardContentsLightTheme: {
     color: '#000',
+    fontSize: 18,
+    lineHeight: 26,
+    fontFamily: 'MontserratMedium',
+  },
+
+  dividerDarkTheme: {
+    borderWidth: 1,
+    borderBottomColor: '#fff',
+    height: 1,
+    marginTop: 20,
+    marginBottom: 20,
+  },
+
+  dividerLightTheme: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    height: 1,
+    marginTop: 20,
+    marginBottom: 20,
   },
 
   AdvertizementContainer: {

@@ -22,8 +22,7 @@ export default function Hundreds() {
         try {
           const gotWordList = await useGetStoreWordList();
 
-          if (headerTitle)
-            setState(gotWordList.slice(Number(headerTitle) - 100, Number(headerTitle)));
+          if (headerTitle) setState(gotWordList.slice(Number(headerTitle) - 100, Number(headerTitle)));
         } catch (error) {
           console.error(error);
         }
@@ -70,7 +69,6 @@ export default function Hundreds() {
 
     setDoneState(
       doneState.map((value: any, arrayIndex: any) => {
-        console.log(index, arrayIndex, doneState);
         if (index / 5 === arrayIndex) {
           return { ...value, done: !value.done };
         } else {
@@ -92,54 +90,30 @@ export default function Hundreds() {
               }}
             >
               {colorScheme === 'dark' ? (
-                <Image
-                  style={styles.headerBackIcon}
-                  source={require('../assets/images/icons/arrow-left-white.png')}
-                />
+                <Image style={styles.headerBackIcon} source={require('../assets/images/icons/arrow-left-white.png')} />
               ) : (
-                <Image
-                  style={styles.headerBackIcon}
-                  source={require('../assets/images/icons/arrow-left-black.png')}
-                />
+                <Image style={styles.headerBackIcon} source={require('../assets/images/icons/arrow-left-black.png')} />
               )}
             </Pressable>
-            <Text
-              style={
-                colorScheme === 'dark' ? styles.headerTitleDarkTheme : styles.headerTitleLightTheme
-              }
-            >
-              {headerTitle}
-            </Text>
+            <Text style={colorScheme === 'dark' ? styles.headerTitleDarkTheme : styles.headerTitleLightTheme}>{headerTitle}</Text>
           </View>
           <View style={styles.headerIconContainer}>
             {colorScheme === 'dark' ? (
               <>
                 <Pressable onPress={() => router.push('/saved')}>
-                  <Image
-                    style={styles.headerIcon}
-                    source={require('../assets/images/icons/saved-white.png')}
-                  />
+                  <Image style={styles.headerIcon} source={require('../assets/images/icons/saved-white.png')} />
                 </Pressable>
-                <Pressable onPress={() => router.push('/game')}>
-                  <Image
-                    style={styles.headerIcon}
-                    source={require('../assets/images/icons/game-white.png')}
-                  />
+                <Pressable onPress={() => router.push(`/game?hundred=${headerTitle}`)}>
+                  <Image style={styles.headerIcon} source={require('../assets/images/icons/game-white.png')} />
                 </Pressable>
               </>
             ) : (
               <>
                 <Pressable onPress={() => router.push('/saved')}>
-                  <Image
-                    style={styles.headerIcon}
-                    source={require('../assets/images/icons/saved-black.png')}
-                  />
+                  <Image style={styles.headerIcon} source={require('../assets/images/icons/saved-black.png')} />
                 </Pressable>
-                <Pressable onPress={() => router.push('/game')}>
-                  <Image
-                    style={styles.headerIcon}
-                    source={require('../assets/images/icons/game-black.png')}
-                  />
+                <Pressable onPress={() => router.push(`/game?hundred=${headerTitle}`)}>
+                  <Image style={styles.headerIcon} source={require('../assets/images/icons/game-black.png')} />
                 </Pressable>
               </>
             )}
@@ -147,58 +121,26 @@ export default function Hundreds() {
         </View>
 
         {/* Cards */}
-        <ScrollView
-          style={styles.scrollView}
-          showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={false}
-        >
+        <ScrollView style={styles.scrollView} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
           {doneState &&
             doneState.map((value: any, index: any) => (
-              <View
-                key={index}
-                style={
-                  colorScheme !== 'dark' ? styles.cardViewDarkTheme : styles.cardViewLightTheme
-                }
-              >
-                <Pressable
-                  style={styles.cardContainer}
-                  onPress={() => router.push(`/words?hundred=${headerTitle}&word=${index * 5 + 5}`)}
-                >
+              <View key={index} style={colorScheme !== 'dark' ? styles.cardViewDarkTheme : styles.cardViewLightTheme}>
+                <Pressable style={styles.cardContainer} onPress={() => router.push(`/words?hundred=${headerTitle}&word=${index * 5 + 5}`)}>
                   <View>
-                    <Text
-                      style={
-                        colorScheme !== 'dark'
-                          ? styles.cardTitleDarkTheme
-                          : styles.cardTitleLightTheme
-                      }
-                    >
-                      {index * 5 + 5}
-                    </Text>
+                    <Text style={colorScheme !== 'dark' ? styles.cardTitleDarkTheme : styles.cardTitleLightTheme}>{index * 5 + 5}</Text>
                   </View>
                   <Pressable onPress={() => onDoneTouch(index * 5)}>
                     <View>
                       {colorScheme !== 'dark' ? (
                         value.done ? (
-                          <Image
-                            style={styles.cardDoneIcon}
-                            source={require('../assets/images/icons/done-complete-white.png')}
-                          />
+                          <Image style={styles.cardDoneIcon} source={require('../assets/images/icons/done-complete-white.png')} />
                         ) : (
-                          <Image
-                            style={styles.cardDoneIcon}
-                            source={require('../assets/images/icons/done-white.png')}
-                          />
+                          <Image style={styles.cardDoneIcon} source={require('../assets/images/icons/done-white.png')} />
                         )
                       ) : value.done ? (
-                        <Image
-                          style={styles.cardDoneIcon}
-                          source={require('../assets/images/icons/done-complete-black.png')}
-                        />
+                        <Image style={styles.cardDoneIcon} source={require('../assets/images/icons/done-complete-black.png')} />
                       ) : (
-                        <Image
-                          style={styles.cardDoneIcon}
-                          source={require('../assets/images/icons/done-black.png')}
-                        />
+                        <Image style={styles.cardDoneIcon} source={require('../assets/images/icons/done-black.png')} />
                       )}
                     </View>
                   </Pressable>
